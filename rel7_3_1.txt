@@ -1,0 +1,491 @@
+coal 7.3.1の機能改善およびバグｆｉｘ
+********************************
+*         機 能 改 善          *
+********************************
+<2023.01.06>
+(1)FILEの代わりにM_FILEを定義して使うようにした。
+   --> axlib.h, axafile.c, akxalog.c, makefile, makefile_no_u8src, makefile_no_iconv,
+       cllocal.h, clfuncfile.c, clexescr.c, clprexec.c, colinit.c, clglobal.c, coalmain.c
+       cl_user_func.c, cl_conv_sysvar.c, cllex.c, cllog.c, cl_path.c, clfunc.c
+
+<2023.01.17>
+(2)HEREDOCのデータをメモリーから入力するようにした。
+   --> cllex.c, clexescr.c, clfuncfile.c
+ 
+<2023.01.21>
+(3)debugは、リダイレクトしないオプション(25 0x400)を追加した。
+   --> cllog.c
+
+<2023.01.22>
+(4)HEREDOCのデータをオプションによりファイルからも入力できるようにした。
+   --> axafile.c, clfuncfile.c, clexescr.c, cllex.c
+
+<2023.01.23>
+(5)cl_tmp_const_malloc()等で、呼び出し位置がmemory.logに出るようにしたマクロを定義した。
+   --> cmmacro.h, akxmemtool.h, akxmemtool.c, cl_const_mem_get.c
+
+<2023.02.08>
+(6)算術式に、配列名＋リストまたはデータ並び式を追加して、次元の要素数を指定できるようにした。
+   --> clpedef.c, cl_array.c, clmessage.c, clprot.h
+
+<2023.02.13>
+(7)Parm_to_char()で、範囲値または複素数をその形式で取得するようにした。
+   上記を取得しないオプションを追加した。
+   --> cl_cmpt_string.c
+
+<2023.02.22>
+(8)compile処理では、xxxx.yyyyの形式のyyyy(直前が'.')は、変換せず名前変数にし、
+   '.'実行(mc=29)のときに、xxxxのidによってyyyyを変換するようにした。
+   --> cl_gx_compile.c
+
+/************ 他への影響が大きすぎるので止めた **************
+<2023.02.24>
+(9)CLASS内部のときは、スコープなしの変数定義は、LOCALにするようにした。
+   --> clpedef.c, cl_gx_compile.c
+***************************/
+<2023.02.25>
+(10)let define, let scalarを使用できるようにした。
+   --> clpedef.c, cl_proc_bexp.c, cltrbexp.c, cltrdef.c, clprdeftype.c, clconst.h
+
+<2023.03.08>
+(11)文字コードの変換元/先がUTF-8のときは、文字列中に"\"、"~"があるかどうかを調べ、あるときは、
+    iconvを使わないようにした。また、このチェックを行わないオプションも追加した。
+   --> akxcode.c, cl_cmpt_string, clfuncfile.c, akxlib.h
+
+<2023.02.09>
+(12)ARRAYMAP()関数のインデックス指定に、リストまたはデータ並び式を指定できるようにした。
+   --> cl_array.c
+
+<2023.03.10>
+(13)ASでない変数定義で、複数の変数に初期値設定できるようにした。これと引き換えに
+    設定できる値は、1個になった。これらはオプションで変更可能。複数の値を設定したいときは、
+    データ並び式に'*'を付けることにした。
+   --> clpedef.c, clprdeftype.c, cl_array.c
+
+<2023.03.12>
+(14)STR_CONV()関数で、"UPPER","LOWER","PROPER","HEBON"を指定できるようにした。
+   --> akxcode.c, cl_cmpt_string.c, cl_conv_sysvar.c, clglobal.c, akxlib.h
+
+<2023.03.30>
+(15)ローマ字変換の前に辞書による英単語への変換を可能として。
+   --> akxcode.c, cl_cmpt_string.c
+
+(16)akxstrsort_inx_vdat()をVBAから移植した。
+   --> akxlib,c, akxlib.h
+
+<2023.03.31>
+(17)辞書への登録/削除/参照関数を追加した。
+   --> akxcode.c cl_func.c
+
+(18)固定長要素列をソートする関数akxnmstrsort_opt()で、qsort_r()を使うようにした。
+   --> akxlib.c, akxlib.h
+
+(19)クィックソート関数akxqsort_r()を追加した。
+   --> akxlib.c, akxlib.h
+
+<2023.04.09>
+(20)フリガナ変換機能を実装した。
+   --> akxcode.c, akxcodeap.c, cl_cmpt_string.c, akxlib.h
+
+<2023.04.12>
+(21)hasxに衝突回数を数えて返す機能を追加した。
+   --> akxshash.c
+
+(22)hasxで、オプションをid[1]に持つようにした。
+   --> akxshash.c, akxlib.h
+
+<2023.04.13>
+(23)hasxでmaxreg<=65535のときは、エントリ配列等をushortで取るようにした。
+   --> akxshash.c,
+
+<2023.04.17>
+(24)スクリプト開始時に、エラーメッセージ域をクリアするようにした。
+   --> clclear.c, clexescr.c, cl_process_end_if.c
+
+<2023.04.23>
+(25)PROC,FUNCTIONの仮引数にCONSTを指定できるようにした。
+   --> clprproc.c
+
+<2023.04.28>
+(26)名称変数のtInfoParmは、ハッシュのデータ域を使うようにした。
+   --> cl_conv_parm.c, cl_proc_bexp.c, clprundef.c, clprdef.c, clprproc.c, cl_class.c,
+       clmkproc.c, clfunc.c, clprdeftype.c, cl_scparmset.c, clclear.c, clmkscpt.c,
+       cl_parm_data_set.c
+
+<2023.05.03>
+(27)ポインタのキャストを使用できるようにした。
+   --> cl_gx_compute.c, cl_gx_compile.c
+
+<2023.05.19>
+(28) 数値属性の変数定義にCOMPLEXを指定できるようにした。
+   --> clprdef.c, clprdeftyte.c, clarray.c, cl_gx_rep_set.c, cl_gx_compile.c, cl_user_func.c
+
+<2023.05.20>
+(29)スクリプトの同じ行のエラーを出す回数を指定できるようにした。
+   --> cllog.c, akxsrblist.c
+
+<2023.05.24>
+(30)REDEFINEコマンドで変数が未定義のときは、DEFINEコマンドと同じになるようにした。
+    実行オプション１に、「0x20 : redefine時に変数が未定義のとき、エラーとする。」を追加した。
+   --> clprdefine.c
+
+(31)DEBUGOUT_InfoParm()で、InfoParm->pi_idが0のときもInfoParm全体の16進ダンプを出力するようにした。
+   --> cllog.c
+
+<2023.06.24>
+(32)数値の積を求める関数PRODUCT()を追加した。
+   --> cl_cmpt_comp.c, cl_gx_func_bexp.c, cl_const.h
+
+<2023.06.26>
+(33)数値のアッパー処理を共通化した。
+   --> cl_cmpt_comp.c, cl_cmpt_math.c, cl_conv_const_n.c
+
+(34)getval()で範囲を指定したとき、範囲にインターバル指定がないいときでも、3番目の値である
+    インターバルのデフォルト値を出力するようにした。
+   --> clfunc.c
+
+<2023.07.04>
+(35)式を処理するとき、最初に数値のみかどうかのみをチェックしているが、cl_qnconv()を新設して
+    整数かどうかのみをチェックするようにした。
+   --> cl_conv_conct_n.c, cl_gx_exp_imd.c
+
+<2023.07.17>
+(36)img(),image()関数を追加した。
+   --> cl_gx_compute.c, cl_gx_func_bexp.c, cltrbexp.c
+
+<2023.07.23>
+(37)NULL値をサポートした。
+   --> cl_gx_func_bexp.c, clmkscpt.c
+
+<2023.08.03>
+(38)Implicit機能を実装した。
+   --> clprdeftype.c, clprdef.c, colinit.c, clglobal.c, cltrbexp.c, cltrdef.c, clclear.c,
+       clconst.h, cllocal.h, clprot.h, akxlib.c, akxsrblist.c, akxlib.h
+
+<2023.08.11>
+(39)GOTOコマンドとコマンド行へのラベル付与をサポートした。
+   --> clprbrk.c, cltree.c, cllex.c, cltrfled.c, cllexfnc.c, clexescr.c, clleaf.c,
+       cl_proc_bexp.c, clconst.h
+
+<2023.08.15>
+(40)DOループをサポートした。
+   --> cltrloop.c
+
+<2023.09.22>
+(41)PRINT系コマンドでDO|FORループをサポートした。
+   --> cltrloop.c, cl_user_func.c, clprot.h
+
+<2023.09.30>
+(42)BEXPコマンドでDO|FORループをサポートした。
+    BEXPの式でないときは、LETの式で処理するようにした。
+   --> cl_proc_bexp.c, clprot.h
+
+<2023.10.08>
+(43)配列のインデックスに範囲式を指定可能とした。
+   --> cl_gx_exp_imd.c, cl_array.c, cl_gx_compile.c, cl_gx_rep_prm_set.c, clprot.h
+
+<2023.10.08>
+(44)データ・リスト、データ並びのインデックスに範囲式を指定可能とした。
+   --> cl_gx_exp_imd.c, clprot.h
+
+<2023.10.22>
+(45)配列定義の初期値設定で配列のデータ指定を設定できるようにした。
+   --> cl_gx_rep_set.c, clprot.h
+
+<2023.11.05>
+(46)インタラクティブモードで文をファイルから入力できるようにした。
+   --> cl_path.c
+
+<2023.11.19>
+(47)TO_DNARA()を追加した。
+   --> cl_gx_func_bexp.c, cl_cmpt_to.c, clconst.h
+
+<2023.XX.XX>
+(48)
+   -->
+
+********************************
+*           Bug fix            *
+********************************
+<2023.01.25>
+(1)sample_fibonacci.clを実行すると、2回目のwhile a < 4;で、「cl_gx_bexp: ポインタは、演算できません。」の
+   エラーになる。
+   [原因]aが、2重の'S'形式になっている。これは、[a, b] = [b, a+b];の処理で、bをaに代入する処理を
+         _rep_info_set2()で行っているが、bが'S'形式であるのに_ex_conv_parm_opt()で処理していないために、
+         aに'S'形式で代入され、後続の処理で、さらに、'S'形式にされていた。
+   [措置]代入の前に、bを_ex_conv_parm_opt()で処理するようにした。
+   --> cl_gx_compile.c
+
+<2023.01.28>
+(2)y = &x;print y;で、「yに'*'は指定できません。」のエラーになる。
+   [原因](1)の対応、y = &xのときに、yがポインタでなくなっていた。
+   [措置]_ex_conv_parm_opt()では、ポインタのときは、アドレス取得オプションでないときも、
+         そのまま、'S'形式で返すようにした。
+         また、'S'形式にするとき、ポインタは、そのままとした。
+   --> cl_gx_compile.c, cl_conv_parm.c
+
+<2023.01.31>
+(3)HOLDモードのエラーが出力されない
+   [原因]エラーが蓄積されるのがTRYモードのときのみになっている。
+   [措置]HOLDモードのときもエラーが蓄積されるようにした。
+   --> cllog.c
+
+<2023.02.09>
+(4)arrayclr()でマップド配列をNULLパラメータでクリアしても設定済み要素数がゼロにならない。
+   [原因]pTBL<>NULLのときは、マップド配列の設定済み要素数を設定していない。
+         また、設定している値が、元の配列での設定済み要素数を設定している。
+   [措置]pTBL<>NULLのときも設定済み要素数を設定するようにし、また、設定値をゼロにした。
+   --> cl_gx_rep_set.c
+
+(5)arrayclr()でマップド配列をNULLパラメータでクリアしたとき、元の配列の設定済み要素が
+   すべてなくなっても元の配列の設定済み要素数がゼロにならない。
+   [原因]pTBL<>NULLのときは、元の配列の設定済み要素数を元の配列上のマップド配列の開始位置-1に
+         に設定しているが、それより前の要素が設定済みかどうかをチェックしていない。
+   [措置]上記、それより前の要素が設定済みかどうかをチェックし、すべてが未設定のときは、ゼロに
+         するようにした。
+   --> cl_gx_rep_set.c
+
+<2023.02.10>
+(6)マップド配列Ａで配列の要素数が定義されている場合に、要素がすべて未定義になっているとき、
+   その上位にマップされたマップド配列Ｂの要素に値が設定されると、マップド配列Ａの設定済み
+   要素数が(マップド配列Ｂの設定済み最大要素位置-マップド配列Ａオフセット位置)になる。
+   [原因]マップド配列Ａの元の配列の設定済み最大要素位置がマップド配列Ａの設定済み最大要素位置
+         より大きいとき、マップド配列Ａの設定済み最大要素位置をその位置に更新している。
+   [措置]元の配列の設定済み最大要素位置がマップド配列Ａの要素の最大位置を越えているときは、
+         マップド配列Ａの設定済み最大要素位置を更新しないようにした。
+   --> cl_array.c(cl_get_array_index_tbl_ref)
+
+<2023.02.13>
+(7)abs(3i)が3iになる。
+   [原因]absでは、pInfoParm2=pInfoParm1の状態で、cl_cmpt_complex()が呼ばれる。
+         cl_cmpt_complex()では、iIMAGE1<>0, iIMAGE2<>0となり、absの結果にD_DATA_IMAGEを立てている。
+   [措置]absのときは、D_DATA_IMAGEを立てないようにした。
+   --> cl_cmpt_complex.c
+
+<2023.02.16>
+(8)mini環境で、undefを実行すると落ちる。
+   [原因]undefする変数のpi_aux[1]からpha_vnameを求める処理をforループで行っているが、
+         開始インデックスを3で回数が3のため、インデックスが0のLOCAL用に設定されず、未初期化の
+         pha_vnameを使って落ちている。
+   [措置]ループの前にpha_vnameをNULLで初期化するようにし、ループの式を2から0まで回るようにした。
+   --> clprundef.c
+
+<2023.02.24>
+(9)exec_all_test list_test.txtを実行すると、test8で落ちる。
+   [原因]test8の前に実行したスクリプトでClass MATHのインスタンス情報が作成され残っている状態で、
+         test8でClass MATHのインスタンスを作成するときに既に存在しているのでそれを使って落ちている。
+         test8の前に作成されたインスタンスのtopleafは、そのスクリプトが終了した時点でFreeされている。
+         test8を実行したときに、残っているインスタンス情報のtopleafを使って落ちた。
+   [措置]インスタンス情報をpCLprocTableに登録するのを止めて、scrctに登録するようにした。
+   --> cl_class.c
+
+<2023.03.07>
+(10)GETWORD()関数で、SSPLのsp、wdlen、lenをバイト単位で入出力している。
+   [原因]不注意
+   [措置]文字単位で入出力するようにした。
+   --> cl_cmpt_string.c
+
+<2023.03.08>
+(11)for each x in ...; を繰り返し実行すると、x.Indexとx.Valueが未定義になる。
+   [原因]1回目を実行した際に、ループの中で参照しているxのobj0は、auto変数用の領域Objを
+         参照するようになる。ループを抜けた際にxを削除し、ループの初めにxを作成している。
+         したがって、Objのobj0が持っているアドレスが新しく取られたxのアドレスと一致する
+         保証がないにも係わらず、Objのobj0を使って未定義エラーとなった。
+   [措置]ループを開始する際に、Objのobj0をクリアするようにした。初回は、ループ内の変数は
+         未コンパイルなので、obj0が作られていないためクリア処理は行われない。
+   --> clprloop.c, cl_gx_compile.c
+
+<2023.03.19>
+(12)test_class.clを実行すると、２回目のNewで落ちる。
+   [原因]クラス変数を定義するために、生成したインスタンスのprocを使って、クラスを実行している。
+         procの開始時に、cl_process_proc()で、クラス変数用のobj0をクリアするために、
+         _proc_clear_var(proc)を呼んでいる。_proc_clear_var(proc)は、クラスのノードを順に調べて、
+         式で使っているobj0をクリアする。このとき、procの中の関数ノード中のobj0をクリアしようとして
+         落ちている。(proc内の関数のobj0は、その関数が持っている)
+   [措置]procのleaf中の左側の関数ノードまたはprocノードは、調べないようにし、
+         右側の関数ノードまたはprocノードは、スキップするようにした。
+   --> cl_gx_compile.c
+
+<2023.04.16>
+(13)memory.logを出力する設定で、copy_obj_mini.clを実行すると、新しくなっていないファイルが
+    コピーされる。
+   [原因]ファイルの日付を"yyyy/mm/dd hh:mi"で変換しているが、マイクロ秒が0クリアされていない。
+         また、日付比較で、maのマイクロ秒より後ろの値も比較している。
+   [措置]上記でマイクロ秒が0クリアされるようにした。また、日付比較では、maのマイクロ秒までを
+         比較するようにした。
+   --> akxcdate.c, cl_cmpt_comp.c
+
+<2023.04.16>
+(14)test_fact.clを2 0 1で実行すると、a[0] = n;でインデックスがありませんのエラーになる。
+   [原因]変数のobj0のエリアを式をコンパイルしたときにObj中に確保し、その先頭位置をその式の
+         pbxObj構造体に記憶しておき、次に実行されたときには、コンパイルなしで、記憶した位置の
+         obj0を使うようになっている。
+         再帰関数では、再帰に入る前に実行された式のobj0の位置は確定した状態で、再帰した関数は
+         実行され、逆に、再帰から戻った後の式は、再帰から戻る関数ですでに実行され、obj0の位置が
+         確定している。
+         obj0の位置は、その式が最初に実行された順番に依存した位置に取られている。したがって、
+         再帰関数では、コンパイル済みの式は、再帰に入る前または再帰から戻る前の関数で取られた
+         位置のobj0を使うことになる。
+         ところが同じ式が再帰に入る前の関数と戻る前の関数とで同じ順番で実行されるとは限らないので、
+         本来のその式用のobj0でないところを使いそこが設定済みだった場合には、objとobj0が正しい
+         対応にならなくなり、エラーとなった。
+   [措置]obj0を確保する先頭にその式のpbxObjのアドレスを入れておき、obj0を使うときに、今の式の
+         pbxObjのアドレスと同じなら、そのまま使い、異なるときは、取り直すことにした。
+   --> cl_gx_exp_imd.c
+
+<2023.XX.XX>
+(15)--d1,200を指定すると落ちる。
+   [原因]スクリプトを開始する際に、pCLprocTableを取得して初期化しているが、取得直後にDEBUGOUTで
+         このアドレスを出力している。DEDBUGOUTの中ではリダイレクト情報を得るために、scrctまたは
+         procを取得しているが、それらは、pCLprocTableの中に設定されている。この時点では、
+         pCLprocTable中は未設定のため不正なアドレスとなり落ちてた。
+   [措置]新規のpCLprocTableを取得する前にpCLprocTableをクリアし、pCLprocTableを取得する際には、
+         取得したアドレス直接pCLprocTableに設定しないようし、DEDBUGOUTでは、その取得したアドレスを
+         出力するようにした。
+   --> cl_packet_check.c
+
+<2023.04.30>
+(16)"b = (char)a = 'A'"で、「char CAST a='A'のデータが未設定です。」のエラーになる。
+   [原因]InfoParmをポップするときに、tInfoParm1とtInfoParm2を使っているが、結果をプッシュする
+         際にS形式にしている。このとき保存されるpInfoParmが演算の結果、変数のInfoParm域に
+         なっていれば問題ないが、tInfoParm1またはtInfoParm2になっているときは、処理によっては、
+         ポップしたS形式のInfoParmが同じ領域になることがある。
+         本件では、(char)aとbの同じInfoParm域が同じになってしまい、bの処理で(char)aがクリアされ、
+         未設定エラーとなった。
+   [措置]S形式にするときに、pInfoParmが&tInfoParm1または&tInfoParm2ときは、temp域にコピーし
+         それを使うようにした。
+   --> cl_gx_compile.c
+
+<2023.05.05>
+(17)int i;のiをi++すると、iのdlenが0になる。
+   [原因]_gx_ppmm_val()の中で、pInfoParmのデータ値を+1した後で、cl_set_parm_bin()でpInfoParmを
+         再設定している。処理の前で、pInfoParm->pi_pauxとpInfoParm->pi_aux[0]を保存し、処理の
+         最後で戻しているが、pInfoParm->pi_lenを戻していないため、後の代入処理で、
+         pInfoParm->pi_dlen=pInfoParm->pi_lenとしているため、0になっている。
+   [措置]pInfoParm->pi_lenも保存し、戻しようにした。
+   --> cl_gx_compute.c
+
+<2023.05.11>
+(18)関数の中でローカル配列を定義し、スクリプト変数に配列名を代入する。関数から戻ったところで
+    配列名を代入したスクリプト変数を参照しても、無効のエラーにならない。
+   [原因]名称変数のtInfoParmにハッシュのデータ域を使うようにしたために、ローカル変数がフリー
+         されても、ハッシュのデータ域は残っているので、そこを見て有効と判断している。
+   [措置]ハッシュのフリーにデータ域をクリアするオプションを追加し、それを使うようにした。
+   --> akxshash.c, akxmemtool.c, clclear.c
+
+<2023.05.23>
+(19)「redefine array dec(5,0) z」で、-1005のエラーになる。
+   [原因]-1005は、mpaの先頭が"MA"でないというエラー。配列要素の(p,q)を変更する処理の2回目で
+         エラーになっている。配列要素のデータ域をalsizeづづ進めて処理しているが、alsizeを
+         UMASKデータ域用に+1していたため、先頭位置がずれてしまった。
+   [措置]UMASKデータ域を不要になったため、+1を止めた。
+   --> clprdef.c(cl_get_def_alsize())
+
+(20)decimal値のprintで、実行オプション２０の精度が反映されない。
+   [原因]cl_mpa2an()で、指数表示にしない場合に実行オプション２０の精度を使っていない。
+   [措置]実行オプション２０の精度を使うようにした。
+   --> cl_cmpt_string.c
+
+<2023.05.24>
+(21)DEBUGOUT_InfoParm(194,"opt=%08x rc=%d",pInfoParm,opt,rc);の出力で、rcの値が出ない。
+   [原因]出力長を求める関数の中で、%08xを処理しているとき、フォーマット長は、"08"の分短くしているが、
+         チェックする位置を進めていないため、"08"を読んで、フォーマット長が2文字短くなってしまい
+         %dが捨てられてしまった。
+   [措置]チェックする位置を"08"の進めるようにした。
+   --> akxalog.c
+
+<2023.05.27>
+(22)'ABCDEF'.3;で演算子なし('ABCDEF' .3)のエラーになる。
+   [原因]'ABCDEF'をcmpgwnsl()で読んだ後でcmppeekwnsl()を呼んでいる。この結果ssp.attr[1]の
+         前ワードの情報が'.'になってしまい、'.'を読んだときにドット演算子と見なせず、'.3'を
+         1ワードとして読んでいる。
+   [措置]cmppeekwnsl()の中で、ssp.attr[1]を保存するようにした。
+   --> cl_gx_exp_imd.c
+
+<2023.06.26>
+(23)getval()で配列の未設定要素を指定したとき、エラーになるが、エラーメッセージが出ない。
+   [原因]cl_get_array_and_var_ent_opt()を呼んで、指定要素のpInfoParmを求めている。この関数は、
+         配列のデータタイプがバリアントだと未設定要素では、NULLを返すが、NULLチェックを行わずに、
+         cl_gx_rep_info_set_ign()を呼んでいる。この関数は、pInfoParmがNULLだとエラーを返すので
+         エラー終了している。
+   [措置]pInfoParmがNULLのときは、未定義エラーメッセージを出力するようにした。
+   --> clfunc.c
+
+<2023.07.16>
+(24)test_class.clを実行すると、「y = new(aaa,3,4);」がエラーになる。
+   [原因]これを実行する前の「print y.fun(11,22,33);」が「return a*b;」がエラーになり、
+         pGlobTable->errorにエラーがセットされた。「y = new(aaa,3,4);」の最初で、
+         クラス変数の定義を実行するために、このクラスを実行した後で、pGlobTable->errorが
+         エラーにセットされていたためにエラーになっている。
+   [措置]手続きや関数を実行する前に、pGlobTable->errorをクリアするようにした。
+   --> clprexec.c, cl_gx_func_bexp.c
+
+<2023.07.17>
+(25)'10+2i'+0 が 100i にならない。
+   [原因]akxqnumber()の文字列解析では、atr=2,iULI=0x40,ret=4 になるが、最後のret設定で、
+         ret==0のときしかretを設定し直していない。
+   [措置]まず、ret==0ときは、ret=atrとし、ret>0のときretを設定し直すようにした。
+   --> akxqnumber
+
+<2023.08.07>
+(26)1.D-4 が、Dの前で切られる。
+   [原因]"数字列."の後ろが"efdEFD"のどれかで、さらに、その後ろが'0'～'9'のときは、
+         数値扱いにしているが、'+'と'-'が抜けている。
+   [措置]'+'と'-'を追加した。
+   --> cl_gx_exp_imd.c(cmpgtwdx())
+
+<2023.09.30>
+(27)bexp x = 'XYZ' substr 2 + 3; が落ちる。
+   [原因]sbstr処理の中で、+のみを実行するとき、Obj=NULL,nobj0=0となっている。nobj0=0のときは、
+         ObjがNULLのチェックを行っていないため、cl_gx_ex_obj_sub()の開始でObj->Obj0を参照して
+         落ちている。
+   [措置]nobj0=0のときもObj=NULLのときは、&tObjを設定するようにした。
+   --> cl_gx_exp_imd.c
+
+<2023.10.01>
+(28)BEXPで配列要素に代入しても設定済み位置が変わらない。
+   [原因]設定済み位置を更新していない。
+   [措置]設定済み位置を更新するようにした。。
+   --> cl_gx_compile.c, cl_gx_compute.c, clprot.h
+
+<2023.10.16>
+(29)	a = $() + [0,10];
+	b = $() + [10,10];
+	setarray(a,2,1,2,3,4,5);
+	setarray(b,0,11,2,13,4,15,6,17,8,19,10);
+	print a *a;
+これで、*aが何も出力しない
+   [原因]*aを出力するときにaの設定済み個数を更新しているが、$()の最大更新位置がaの配列数内の
+　　　　 ときのみ更新している。
+         bへの設定で$()の最大更新位置がaの配列数を超えたためaの設定済み個数が更新されず、*a
+         で何も出力されなっかた。
+   [措置]$()の最大更新位置がaの配列数を超えていてもaの設定済み個数を更新するようにした。
+         合わせて、setarray()実行時に、指定配列の設定済み個数を更新するようにした。
+   --> cl_gx_rep_set.c, cl_array.c
+
+<2023.10.17>
+(30)配列の集合演算で、配列の設定済み個数がゼロになる。
+   [原因]設定済み個数を「nm1  = iParm[3] - iParm[2] + 1」で求めている。
+   [措置]iParm[3]に設定済み個数が入っているので、「nm1  = iParm[3]」とした。
+   --> cl_gx_rep_prm_set.c
+
+<2023.10.18>
+(31)coal_miniで、*(*a+*b)がデータが足りませんのエラーになる。
+   [原因]()の処理で内部のデータが未設定のときは、データをPUSHしていないためエラーとなっている。
+   [措置]データが未設定でもPUSHするようにした。
+   --> cl_gx_compile.c
+
+<2023.11.03>
+(32)インタラクティブモードで設定した内部ルーチンが見つからないエラーになる。
+   [原因]lex()実行後に_set_node_path()を実行していない。
+   [措置]インタラクティブモード用のProcIndex2をスクリプトテーブルに追加しそれを指定できる
+         _set_node_path_sub()を_set_node_path()を変更して作成した。また、_check_path()も
+         ProcIndexとProcIndex2の両方をサーチするようにした。
+   --> cl_path.c, clexescr.c, cl_execute_proc.c, cllocal.h, clprot.h
+
+<2023.XX.XX>
+(33)
+   [原因]
+   [措置]
+   --> 
+

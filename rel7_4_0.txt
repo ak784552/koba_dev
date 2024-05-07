@@ -1,0 +1,193 @@
+coal 7.4.0の機能改善およびバグｆｉｘ
+********************************
+*         機 能 改 善          *
+********************************
+<2023.12.13>
+(1)lex処理で、CLcList等をexternで使っているのを引数渡しにした。
+   --> clglobal.c, colinit.c, clexescr.c, clleaf.c, cllesy.c, cllex.c, cllexfnc.c, clnest.c,
+       clpimport.c, clchstcb.c, cltr～.c, cllocal.h
+
+<2023.12.17>
+(2)ARRAY系関数のstartパラメータを削除した。
+   --> cl_gx_rep_set.c, cl_gx_rep_prm_set.c, clprdef.c
+
+<2024.02.29>
+(3)import域にある外部変数定義は、スクリプト実行じのdefine実行で実行しないようにした。
+   --> clprdef.c
+
+<2024.03.1>
+(4)ScrPrCTのpFlag,pFlag2,pFlag3をsc_pFlag,sc_pFlag2,sc_pFlag3とした。
+   ProcCTのpFlag,pFlag2をsc_pFlag,sc_pFlag2とした。
+   --> cllocal.h, clexescr.c, clfuncfile.c, cl_execute_proc.c, cl_path.c, cl_user_func.d
+
+<2024.03.10>
+(5)スクリプトのキャッシュ処理をリングバッファ構造体を使うものに変更した。
+   --> clexescr.c, clprimport.c
+
+<2024.03.15>
+(6)RENAME関数を追加した。
+   --> clconst.h, cl_gx_func_bexp.c, clfuncfile.c
+
+<2024.03.16>
+(7)import処理で使用しないConstCTを作成しないようにした。それに伴いcl_make_node_leaf()では、
+   pConstCtを使用せず、leafと同じMalloc()域を使うようにした。
+   --> clprimport.c, clleaf.c
+
+<2024.03.20>
+(8)手続き種別が、ＩＰ、ＳＣ、ＳＭのときは、手続きを以下の形式で指定できるようにした。
+     [ 式 | 式＠式 ]
+     ・＠なしの式の場合は、式の値が、式＠式の形になっていてもよい。
+   --> cl_ex_get_proc_name.c
+
+<2024.03.29>
+(9)未定義のマップド配列変数を使うと「使用できません」のエラーメッセージが出るが、
+   「未定義です」のエラーメッセージにした。
+   --> cl_conv_parm.c
+
+(10)未定義変数を使って配列要素を指定すると、「配列名ではありません」のエラーメッセージが出るが、
+    「未定義です」のエラーメッセージにした。
+   --> cl_gx_exp_imd.c
+
+<2024.04.15>
+(11)beep()関数、msgbox関数を追加した。
+   --> cl_gx_func_bexp.c, clfunc.c, clconst.h
+
+<2024.04.16>
+(12)実行時オプション７に、0x80000000を追加し、これがオンのときは、cl_check_addr()で、
+    アドレスがinvalidのときは、例外を起こすようにした。
+   --> cl_user_func.c
+
+(13)ユーザ関数の再帰呼び出し回数の上限をPUBLIC変数として新設し、ユーザ関数呼び出し時には
+    これをチェックし、上限を超えたときはエラーにするようにした。
+    システム変数MAX_RECURSION_COUNTを新設した。
+   --> cl_execute_proc.c, cl_packet_check.c, clglobal.c, cl_conv_sysvar.c, cl_const.h
+
+<2024.XX.XX>
+(14)
+   -->
+
+
+********************************
+*           Bug fix            *
+********************************
+<2023.12.17>
+(1)ARRAYCLR()で型指定ありの配列値が変更されない。
+   [原因]データを変更するのに、cl_gx_rep_info_data()を呼び出しているが、この中で、
+         cl_gx_rep_info_set()を呼ぶときのオプションに、D_REP_OPT_SEL_DATAのみを指定している。
+         D_REP_OPT_SEL_DATAのみのときは、設定される側が型指定ありのときは、_gx_rep_val_set()が
+         呼ばれないようになっている。
+   [措置]設定される側が型指定ありのとき_gx_rep_val_set()が呼ばれるよに、cl_gx_rep_info_set()を
+         呼ぶときのオプションに、D_REP_OPT_SEL_CNVTを追加した。
+   --> cl_gx_rep_prm_set.c
+
+<2024.01.16>
+(2)半角カナの5文字"｢｣､｡･"が全角に変換されない。
+   [原因]変換テーブルに定義がない。
+   [措置]定義を追加した。
+   --> akxcode.c
+
+<2024.01.17>
+(3)全角カナの5文字"「」、。・"が半角に変換されない。
+   [原因]全角カナの判定式に入っていない。
+   [措置]追加した。
+   --> akxcode.c(akxctohan_type_opt)
+
+(4)半角全角変換で半角カナが全角に変換されないとき、inが1バイト進まない。
+   [原因]このとき、byteが0になっている。
+   [措置]byte=1を追加した。
+   --> akxcode.c(akxctozen1_type_opt)
+
+<2024.2.12>
+(5)set_array()で連想配列を指定したとき、最後の値を指定しないと落ちる。
+   [原因]値のpInfoParmを取得するときに、値の位置をチェックしていない。
+   [措置]値の位置が引数の個数を超えていたらNULL値をセットするようにした。
+         さらに、値が省略されているときもNULL値をセットするようにした。
+   --> cl_gx_rep_set.c(cl_set_array)
+
+<2024.02.22>
+(6)test_LET12.clを実行すると落ちる
+   [原因]cl_set_max_var_array_ent()中で、pppを取得しているが、cl_func_conv_parm()と
+         cl_conv_parm_opt()でpppを設定していない。
+   [措置]pInfoParmW->pi_paux==indexの判定を止め、pSizeとindexがNULLでない方の処理を
+         行うようにした。また、cl_set_pSize_index()を作成しpSizeとindexを設定する
+         ようにした。
+   --> cl_gx_compile.c, cl_conv_parm.c, clfunc.c, cl_gx_exp_imd.c
+
+<2024.02.24>
+(7)ポインタへの代入がエラーにならない。
+   [原因]チェックしていない。
+   [措置]ポインタの設定をするところで定数の設定もするようにし、ポインタのときは、これを
+         チェックするようにした。
+   --> cl_gx_compile.c
+
+<2024.03.10>
+(8)import処理のあるスクリプトをexec_all_testで実行すると落ちる事がある。
+   [原因]importしたスクリプトのleafはグローバル域に保存していたが、define実行時に作成する
+         cmdobjは、cl_leaf_malloc()を使用しており、これはimportを実行したスクリプトの中の
+         ConstCTを使っている。そのため、importを実行したスクリプトがキャッシュから削除されると、
+         このConstCTを削除され、cmdobjを削除される。結果として、importされたdefineを実行して
+         落ちていた。
+   [措置]cl_leaf_malloc()では、実行中のスクリプトのD_LEAF_IMPORTMODEのフラグが立っているときは、
+         グローバル域のConstCTを使うようにした。(importにおけるLeafConstCtについて.txtを参照)
+   --> cl_const_mem_get.c
+
+<2024.03.18>
+(9)"exec_all_test list_test.txt -p case12"を実行すると、importされたdefine実行で落ちる。
+   [原因]importされたdefineにもかかわらず、sc_pFlag2のD_LEAF_IMPORTMODEが0で実行されている。
+         _search_method_leaf_and_inner()の中でsc_pFlag2のD_LEAF_IMPORTMODEを0にしているが、
+         元に戻らないことがあるらしい。
+   [措置]_search_method_leaf_and_inner()からリターンするときに、sc_pFlag2を元に戻すようにした。
+         これで直ったが、原因は不明。
+   --> cl_execute_proc.c
+
+<2024.03.19>
+(10)implicitでdecに設定された変数をcl_pr_ex_def_array_engine()の最後でDEBUGOUT_InfoParm()すると
+    落ちる。
+   [原因]DEBUGOUT_InfoParm()中でm_mpa2an()がエラーになっているが、そのまま、その後の処理を行って
+         cl_debug_out_level()の中で落ちている。
+         m_mpa2an()のエラーは、ゼロ値なのにzeroが1になっていない。これは、以下が原因。
+         ①cl_get_implicit()で、iParmにDECの情報が設定される。
+           attr=iParm[0]とする。
+         ②redefine時、implicit等でattrとsizeが変わる可能性があるためiParmを再設定する。
+           iParm[0]=attr
+           iParm[1]=size <== implicitする前の値(4)が入っている。
+         ③cl_set_parm_init()でゼロに初期化。
+           型付きにするときに、mpaをアロケートして初期化したmpaをsize分コピーする。
+           ここで、zeroがコピーされず0になった。
+   [措置]①のときに、size=iParm[1]を追加した。
+   --> clprdef.c
+
+<2024.03.29>
+(11)%()または、マップド配列%cを変数に代入して配列として要素に代入してもエラーにならない。
+   [原因]変数に代入するときに、D_AUX1_PROTECTEDを設定していない。配列要素を求めるときに
+         配列に設定されているD_AUX1_PROTECTEDを取り出しているが要素のpInfoに設定していない。
+   [措置]上記未設定のところで設定するようにした。
+   --> cl_gx_rep_prm_set.c, cl_gx_exp_imd.c
+
+<2024.04.06>
+(12)型付き変数にNULL値を入れても、printでNULLと表示されない。
+   [原因]NULLを代入するときに、D_AULN_NULL_VALUEを継承しておらず、printでも文字のときしか、
+         NULL値チェックしていない。
+   [措置]NULLを代入するときに、D_AULN_NULL_VALUEを継承するようにし、printでも一般変数のときは、
+         NULL値チェックをし、NULL値のときは、NULLと表示されるようにした。
+   --> cl_gx_rep_prm_set.c, cl_user_func.c
+
+<2024.04.28>
+(13)値を設定済みの形なしPUBLIC変数に、procの中で、代入すると、「データ型が異なります。
+    データ型設定を無視します。」のワーニングとなる。
+   [原因]定義時には、0であるが、procの中の代入では、7になっている。
+   [措置]データ型比較の前に7は0とした。
+   --> cpprdef.c
+
+(14)値を設定済みの形なしPUBLIC変数に、procの中で、cl_set_public_var()で代入すると、
+    「代入を無視しました。」のワーニングとなる。
+   [原因]cl_set_public_var()では、LOCAL変数の設定のときのみprocを取得しているため、
+         PUBLICのときは、procがNULLになっているため、defコマンドと解釈された。
+   [措置]cl_set_public_var()では、最初にprocを取得するようにした。
+   --> cl_proc_bexp.c
+
+<2024.XX.XX>
+(15)
+   [原因]
+   [措置]
+   --> 

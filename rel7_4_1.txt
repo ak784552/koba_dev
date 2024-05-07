@@ -1,0 +1,25 @@
+coal 7.4.1の機能改善およびバグｆｉｘ
+********************************
+*         機 能 改 善          *
+********************************
+<2024.05.05>
+(1)式のみのコマンド行でのユーザ関数の呼び出しでは、直前node_controlの戻るようにした。
+   --> cl_gx_compile.c, cl_proc_bexp.c, cl_execute_proc.c, cl_gx_compute.c, clexescr.c,
+       clnode.c, clclear.c, cllocal.h, clconst.h, clprot.h, cmerror.h
+
+(2)システムでmallocしたサイズの合計の最大バイト数を取得、表示できるようにした。。
+   --> akxmemtool.c, clfunc.c
+
+<2024.XX.XX>
+(2)
+   -->
+
+
+********************************
+*           Bug fix            *
+********************************
+<2024.XX.XX>
+(1)
+   [原因]
+   [措置]
+   --> 
