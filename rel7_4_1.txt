@@ -3,23 +3,175 @@ coal 7.4.1の機能改善およびバグｆｉｘ
 *         機 能 改 善          *
 ********************************
 <2024.05.05>
-(1)式のみのコマンド行でのユーザ関数の呼び出しでは、直前node_controlの戻るようにした。
+(1)式のみのコマンド行でのユーザ関数の呼び出しでは、直前のnode_controlに戻るようにした。
    --> cl_gx_compile.c, cl_proc_bexp.c, cl_execute_proc.c, cl_gx_compute.c, clexescr.c,
        clnode.c, clclear.c, cllocal.h, clconst.h, clprot.h, cmerror.h
 
 (2)システムでmallocしたサイズの合計の最大バイト数を取得、表示できるようにした。。
    --> akxmemtool.c, clfunc.c
 
-<2024.XX.XX>
-(2)
-   -->
+<2024.05.12>
+(3)整数値に3桁毎にカンマを付ける機能を追加した。
+   --> akxstring.c
 
+<2024.05.26>
+(4)akxs_mseq_xxx()のメモリ領域をmcatによる管理からポインタリストに変更したものを
+   akxs_xmseq_xxx()として作成した。
+   また、akxs_xmseq_r2()のキーサーチをレコードが100件を超えたらHASHに切り換えるように
+   したものをakxs_xmseq_r2()として作成した。
+   --> akxtmcat.c, akxsrblist.c, akxlib.h
+
+(5)HASHのlMaxRegが10未満のときは、lMaxReg=10,lPreReg=7になるようにした。
+   --> akxshash.c, akxlib.h
+
+<2024.06.12>
+(6)Implicitの適用順を変更した。
+   --> clprdeftype.c
+
+<2024.06.24>
+(7)リスト処理のメモリ確保をtmp固定から、m_allocとConstCtで行うようにした。
+   --> cl_gx_rep_set.c, clconst.h, clprot.h
+
+(8)append関数を新設した。
+   --> cl_gx_func_bexp.c, cl_gx_rep_set.c, clprdef.c, clconst.h, clprot.h
+
+(9)関数を演算子でも使えるようにする関数区分(FUNC_OPE)を追加した。
+   --> cl_gx_exp_imd.c, cl_gx_compute.c, clconst.h
+
+<2024.07.07>
+(10)手続きとユーザ定義関数の仮引数配列または一般変数の仮引数の頭に'*'を付けて、ポインタ
+    として受け取れるようにした。これにより、'&'でポインタにしなくても値を返せるようになった。
+   --> cl_gx_compile.c, cl_gx_exp_imd.c, clprproc.c, cl_gx_func_bexp.c
+
+<2024.07.07>
+(11)sscanf()関数を実装した。システム関数で引数に変数のポインタ(S形式)を渡せるようにした。
+   --> cl_gx_compile.c, cl_gx_exp_imd.c, cl_gx_func_bexp.c
+
+<2024.07.10>
+(12)**を配列、リスト、データ並びにも指定できるようにした。
+   --> cl_gx_compile.c, cl_gx_rep_set.c
+
+<2024.07.31>
+(13)DECIMALとDATE型のデバッグ出力用の編集時に編集用バッファの残りサイズをチェックするようにした。
+   --> cllog.c
+
+<2024.08.01>
+(14)ゼロのゼロ条を1とするようにした。
+   --> cl_cmpt_math.c
+
+<2024.08.05>
+(15)整数乗の処理を改善した。
+   --> cl_cmpt_math.c
+
+<2024.XX.XX>
+(16)
+   -->
 
 ********************************
 *           Bug fix            *
 ********************************
+<2024.05.09>
+(1)sleepで引数なしか、0を指定すると、パケットのデータ長が0ですのエラーになる。
+   [原因]sleep時間が0のときは、パケットのデータ長が0のWaitPacketを作っている。
+   [措置]sleep時間が0のときは、パケットを出力する処理に行かないようにした。
+   --> clpsnd.c
+
+(2)SYSDATを参照すると落ちる。
+   [原因]_gx_rep_val_set()の中で、cl_get_parm_date()を呼んでいるが、InputのInfoParmIを
+         渡す引数にOutputのInfoParmOを渡している。
+   [措置]InfoParmIに修正した。
+   --> cl_gx_rep_prm_set.c
+
+(3)exec smで、'{....}'を実行すると、手続き名がNULLですのエラーになる、
+   [原因]このときは、cl_ex_get_proc_scr_name()からpr_namとsc_namが返され、sc_nam.parに
+         値が設定され、sc_nam.parは、NULLになっている。にもかかわらず、sc_nam.parに入っている
+         手続き名をチェックにいってエラーになっている。
+   [措置]sc_nam.parがNULLでないときチェックに行くようにした。
+   --> 
+
+<2024.05.24>
+(4)try(fp = fopen('a','r'));がシンタックスエラーになる。
+   [原因](fp = fopen('a','r'))からリソース式として「fp = fopen('a','r')」をパラメータに
+         設定するときに、(fp = fopen('a','r'))の文字列の2バイト目から19バイトをtrimしているが、
+         trim処理の中で途中でnull文字があったときにそこまでの長さになるようにstrlen()で長さを
+         取るように修正したあった。この文字列は"))"の後ろにnull文字があるのでlenが20バイトに
+         なってしまい、コンパイルのときに")"が余計になりシンタックスエラーになった。
+   [措置]strlen()の代わりに、akxstrnlen()を使うようにした。
+   --> akxstring.c
+
+<2024.05.26>
+(5)HASHのno_deleteモードで落ちる。
+   [原因]no_deleteモードのときは、フリーリストを作らずに、リストのインデックスを+1
+        するのみにしているが、maxregを超えても+1している。
+   [措置]フリーリストのインデックスはmaxregを超えたら0(次のフリーリストなし)にするようにした。
+   --> akxshash.c
+
+<2024.06.26>
+(6)c.append(100)で、cがマップされた配列のとき、index情報が反映されない。
+   [原因]この形式の関数実行のときは、cのInfoParmをコピーしており、pIndex領域がコピーされるため
+         append処理時には、元のindexが分からなくなっている。
+   [措置]cのInfoParmをコピーするときに、D_REP_OPT_AR_NCOPYを設定し、Index領域がコピーされない
+         ようにした。
+   --> cl_gx_func_bexp.c, cl_gx_rep_prm_set.c, clconst.h
+
+(7)c.append(100,101,102,...)で、cがマップされた配列のとき、配列の大きさが拡張される場合に、
+   設定済みの値が一部消える。
+   [原因]cのindexはマップインデックスからの相対値になっているが、_def_array()では絶対値の
+         処理になっているために、配列の大きさが拡張して設定済みの値を戻すときに少ない要素数で
+         戻している。
+   [措置]_def_array()での処理では、相対値を絶対値に戻して処理するようにした。
+   --> clprdef.c
+
+<2024.06.30>
+(8)aを配列として、print *{a,a}で循環参照エラーとなる。
+   [原因]最初のaで循環チェック登録して、次のaで循環チェックしてエラーになっている。
+   [措置]配列、リスト、データ並びの処理が終わったところで、この循環チェック登録をpopするよう
+         にした。
+   --> akxsrblist.c, akxlib.h, cl_gx_get_index.c, cl_user_func.c, clprot.h
+
+<2024.07.14>
+(9)%,#のマップド配列名、&(),#()に代入できてしまう。
+   [原因]それぞれの定義時に定数の設定をしていないため。
+   [措置]それぞれの定義時に定数の設定をするようにした。
+   --> clprdef.c, clfunc.c
+
+<2024.07.25>
+(10)test_struct_class2.clを実行すると、_ex_get_member()のparmName参照で落ちる
+   [原因]parmNameがfreeされており、アドレスが不正になっていた。
+         func _new(s_x,name)を実行したときに、s_xに構造体定義が入って来るが、s_xを作成するときに
+         D_DATA_INDEX_FREEをOFFにするpi_idに'P'が入っていなかった。
+   [措置]D_DATA_INDEX_FREEをOFFにするpi_idに'P'が加えた。
+   --> cl_scparmset.c
+
+(11)test_struct_class.clを実行すると、print My.name&'' World!!'';で関数は指定できないの
+    エラーになる。
+   [原因]機能改善(1)の影響で、関数を実行するとcl_node_control()に戻ることにより、関数実行前の
+         pInfoParmWが無効になり、proc->RetValも無効になる。関数の中でproc->RetValを参照して
+         My変数を作成する処理に行かず当該エラーになった。
+   [措置]cl_node_control()に戻る前のcl_gx_ex_obj()で、pSO->so_Info2にpInfoParmWの内容を保存し、
+         新しいprocが生成されているときは、proc->RetValにpSO->so_Info2を設定し直した。
+   --> cl_gx_ex_obj();
+
+<2024.07.31>
+(12)*((dec(5,2)*)(&w)) = '1.5';を実行し、wをprintすると、データが何も表示されない。
+   [原因]先頭の*処理で、変数がポインタで型付のときは、その型で初期化しているが、そのときの
+         メモリアロケートオプションにテンプを指定している。
+   [措置]変数のメモリアロケート状態をチェックし、MALLOCのときは、MALLOCオプションを指定する
+         ようにした。
+   --> cl_gx_compile.c
+
+(13)DECIMAL型のInfoParmをデバッグ出力すると、MPA情報が出力されない。
+   [原因]デバッグデータを"%s%s"で出力しているが、MPA情報は、3番目の引数になっている。
+   [措置]"%s%s%s"で出力するようにした。DATE型も同様に修正。
+   --> cllog.c
+
+(14)S形式のデバッグ出力の後に、PARMINFO2の情報が出力される。
+   [原因]PARMINFO2を出力する処理が、InfoParmのIdで分岐しているif文の外にある。
+   [措置]InfoParmのIdが' 'の処理の中に移動した。
+   --> cllog.c
+
 <2024.XX.XX>
-(1)
+(15)
    [原因]
    [措置]
    --> 
