@@ -64,3 +64,6 @@ development
         > coal sample
         Hello World!
         >
+------------------------------------------------------------
+連絡先：mail to: akkoba@cl.cilas.net
+
