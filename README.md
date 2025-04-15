@@ -67,7 +67,7 @@ development
 ------------------------------------------------------------
 連絡先：mail to: akkoba@cl.cilas.net
 ------------------------------------------------------------
-to make
+**make方法：**to make
 any> gzip -d tar_appl_coal_new.gz
 any> gzip -d tar_lib_new.gz
 any> tar xovf tar_appl_coal_new
