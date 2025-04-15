@@ -1,7 +1,7 @@
 # koba_dev
 development
 1. はじめに
-1.1 生い立ち
+ 1.1 生い立ち
 　Coalは、当初、あるシステム用に開発されたインタプリター言語です。
 　機能的には、クライアントＡＰからのコマンドを受けて、ＤＢを検索し結果を編集して返すという単純なものでした。
 　その後、機能が強化され現在に至っています。
@@ -67,16 +67,15 @@ development
 ------------------------------------------------------------
 連絡先：mail to: akkoba@cl.cilas.net
 ------------------------------------------------------------
-**make方法：**to make
-any> gzip -d tar_appl_coal_new.gz
-any> gzip -d tar_lib_new.gz
-any> tar xovf tar_appl_coal_new
-any> tar xovf tar_lib_new
-any> cd src/lib
--- to edit src/os_depend.mk
-any/src/lib> make
-any/src/lib> cd ../appl
-any/src/appl> make
-any/src/appl> cd coal/test
-any/src/appl/coal/test> ../coal sample
-
+make方法：to make
+ any> gzip -d tar_appl_coal_new.gz
+ any> gzip -d tar_lib_new.gz
+ any> tar xovf tar_appl_coal_new
+ any> tar xovf tar_lib_new
+ any> cd src/lib
+ -- to edit src/os_depend.mk
+ any/src/lib> make
+ any/src/lib> cd ../appl
+ any/src/appl> make
+ any/src/appl> cd coal/test
+ any/src/appl/coal/test> ../coal sample
