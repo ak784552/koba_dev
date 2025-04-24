@@ -2,42 +2,57 @@ coal 7.5.0の機能改善およびバグｆｉｘ
 ********************************
 *         機 能 改 善          *
 ********************************
+<2025.03.24>
+(1)有理数をサポートした。
+   --> makefile, cl_cmpt_rational.c, cl_cmpt_math.c, cl_gx_func_bexp.c, clprdeftype.c,
+       cltrbexp.c, cl_conv_const_n.c, clconst.h
+
+<2025.03.25>
+(2)m_is_mpa1(), m_mod2()を追加した。
+   --> akxmpa.c, akxlib.h
+
+<2025.03.26>
+(3)akxg_sosu_next(), akxg_sosu_next_tbl()を追加した
+   --> akxgmath.c, akxlib.h
+
+<2025.04.12>
+(4)_b_search_mpa(), akxg_sosu_over_by_tbl(), akxg_sosu_chk_mpa_by_tbl(),akxg_sosu_next_mpa_tbl(),
+   akxg_sosu_next_mpa(), akxg_sosu_over_mpa_by_tbl()を追加した
+   --> akxgmath.c, akxlib.h
+
 <2025.XX.XX>
-(1)
+(5)
    -->
 
 ********************************
 *           Bug fix            *
 ********************************
-<2025.1.1>
-(1)関数の中でローカル配列aを定義し、これを新規のPRIVATE変数yにデータモードで代入し、関数から復帰後に
-   yをPRINTすると「変数(y)の配列は無効です」のエラーになる。
-   [原因]新規にスコープ付き変数を生成した後に、代入前の変数の初期化でスコープ情報がクリアされてしまい、
-         配列データをコピーした後で、正しいgidが設定できなくなっていた。
-   [措置]変数の初期化前にスコープ情報を退避し、初期化後に戻すようにした。
-   --> cl_gx_compile.c
+<2025.03.26>
+(1)3.5r/10が、「１０進小数点数[3.5r]の指定が誤っています(rc=-15)。」となる。
+   [原因]atrが2と4のときは、ULIRを返しているが、3.5のときは、atr=8となっているため、
+         UILRが返っていない。
+   [措置]atr=8でもULIRを返すようにした。
+   --> akxconv.c
 
-<2025.1.5>
-(2)_add_wkstr_mcat()で、mcatが使われないようになっている。
-   [原因]区切り処理に入る前に、_add_wkstr_mcat()を呼び、_add_wkstr_mcat()の中でmcat->mc_iposが
-         ゼロのときは、wkstrとhをそのまま使い、mcat.mc_iposがゼロでないときは、mcatのデータを
-         使うようにしていたが、mcat->mc_iposの初期値がゼロのため、mcatが使われることがないように
-         なっていた。
-   [措置](1)_add_wkstr_mcat()の中でBUFLENを超えそうなときは、mcatにデータを追加するようにした。
-            また、opt追加し、opt<>0で、mcat->mc_ipos<>0のときは、mcatを使うようにした。
-         (2)区切り処理前は、opt=0とし、区切り処理の前は、opt=1とした。
-         (3)区切り処理の前で_add_wkstr_mcat()を呼んだ後に、mcat->mc_ipos>0のときは、mcatの
-            データを使うようにした。
-   --> cllex.c
+<2025.04.10>
+(2)a=32767.0;b=16384.0;a/b が 1.0... になる。
+   [原因]1桁目を処理した後、a=16383.0で、anm=163 bnm=163 となっているため、anmが16383にならず、
+         また、d=1となるため、md[d]がそのまま使われ、正しい引き算になっていなかった。
+   [措置]anm=bnmでもanmが16383になるようにし、d=100(RADIX)のときは、d=99(RADIX-1)とするようにした。
+   --> akxmpa.c
 
-<2025.02.27>
-(3)test_max_minを実行すると落ちる
-   [原因]操作データがa(int型)、b(decimal型)のときに、結果がdecimalになるため、結果を返すpInfoParmに
-         decimalデータをセットする際、'V'オプションでセットしている。pInfoParmは、int型のため、
-         pInfoParm->pi_dataは自分の中を指しており、ここに、decimalデータをコピーし、pInfoParmWの
-         アドレス域を壊していた。
-   [措置]pInfoParmが、int型のときは、オプションを' 'とした。
-   --> cl_cmpt_cmp.c
+<2025.04.23>
+(3){}の形式の関数を実行したとき、retvalに設定してあるpInfoParmWの内容がRETURN時に不正になる。
+   [原因]pInfoParmWはオート変数を使っているため、関数実行でnodeに戻る場合、エリアが失われてしまう。
+         {}形式でないときは、pInfoParmWをmallocしたものに置き換えているため、エリアが失われることはない。
+   [措置]{}の形式かどうかの判別をやめ、pInfoParmWをmallocしたものに置き換える処理を関数化した上で、
+         ユーザ定義関数を実行するときのみ、この関数を呼ぶようにした。
+         なお、cl_gx_func_method()の中では、pInfoParmW->pi_idに'F'をセットし、このときのみ、
+         上記関数を実行するようにした。
+         また、上記関数では、pInfoParmWのエリア用に"$関数名"の変数を作成しているが、この変数の
+         後ろに通番を付けるようにした。これは、一つの式の中で同じ関数が呼ばれても、pInfoParmWの
+         エリアが同じにならないようにするためである。
+   --> cl_gx_func_bexp.c, cl_execute_proc.c
 
 <2025.XX.XX>
 (4)
